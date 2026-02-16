@@ -1,6 +1,43 @@
 {
+  "//": "============================================================",
+  "//": "VAELIX | PROJECT CITADEL — VS CODE EXTENSION MANIFEST",
+  "//": "FILE:     .vscode/extensions.json",
+  "//": "VERSION:  1.1.0 — Citadel Standard",
+  "//": "FIX LOG:",
+  "//": "  v1.1.0 — Added chipsalliance.verible (formatter alignment)",
+  "//": "  v1.1.0 — Added ms-python.python (test.py / cocotb support)",
+  "//": "  v1.1.0 — Added redhat.vscode-yaml (info.yaml validation)",
+  "//": "============================================================",
+
   "recommendations": [
+
+    "//": "--- RTL DEVELOPMENT -------------------------------------------",
+
+    "//": "Verilog HDL: syntax highlighting, linting via Verilator,",
+    "//": "hover definitions, and module navigation for .v files.",
     "mshr-h.veriloghdl",
-    "surfer-project.surfer"
+
+    "//": "Verible: SystemVerilog/Verilog formatter and linter.",
+    "//": "Required for verible-verilog-format (set in settings.json).",
+    "chipsalliance.verible",
+
+    "//": "--- WAVEFORM ANALYSIS -----------------------------------------",
+
+    "//": "Surfer: native FST/VCD waveform viewer inside VS Code.",
+    "//": "Eliminates need to launch GTKWave externally during debug.",
+    "surfer-project.surfer",
+
+    "//": "--- VERIFICATION (PYTHON / COCOTB) ----------------------------",
+
+    "//": "Python: IntelliSense, debugging, and linting for test.py.",
+    "//": "Required for cocotb async/await and dut attribute resolution.",
+    "ms-python.python",
+
+    "//": "--- CONFIGURATION FILES ---------------------------------------",
+
+    "//": "YAML: schema validation for info.yaml.",
+    "//": "Catches pinout declaration errors before synthesis.",
+    "redhat.vscode-yaml"
+
   ]
 }
