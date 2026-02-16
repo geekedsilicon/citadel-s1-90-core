@@ -1,22 +1,63 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.183.0/containers/ubuntu
+// ==============================================================================
+// VAELIX | PROJECT CITADEL — DEVCONTAINER MANIFEST
+// ==============================================================================
+// FILE:      .devcontainer/devcontainer.json
+// VERSION:   1.1.0 — Citadel Standard
+// TARGET:    VS Code Remote Container (Dev Container Spec)
+// BASE:      Ubuntu 24.04 — Silicon Forge
+//
+// PURPOSE:
+//   Defines the complete hardware resources, toolchain extensions, and
+//   initialization sequence for the Vaelix S1-90 development environment.
+//
+// MEMORY:
+//   10GB reserved for LibreLane detailed routing and parasitic extraction.
+//   Do not reduce — synthesis will OOM on dense designs.
+//
+// EXTENSION MANIFEST (must match .vscode/extensions.json):
+//   mshr-h.veriloghdl        — RTL syntax, Verilator linting, hover defs
+//   chipsalliance.verible    — Verilog formatter (Vaelix alignment standard)
+//   surfer-project.surfer    — FST/VCD waveform viewer (inline, no GTKWave needed)
+//   ms-python.python         — test.py / cocotb IntelliSense and debugging
+//   redhat.vscode-yaml       — info.yaml schema validation
+//
+// INITIALIZATION SEQUENCE:
+//   postCreateCommand  — Activates Python venv on every new shell (once at create)
+//   postStartCommand   — Syncs tt-support-tools on every container start
+//
+// FIX LOG:
+//   v1.1.0 — [MODERATE] Extension list expanded to full 5-extension Citadel manifest
+//   v1.1.0 — [MODERATE] Confirmed postStartCommand path (/ttsetup/) is correct
+//   v1.1.0 — [ADVISORY] Inline JSON comments consolidated to header block
+//   v1.1.0 — Container renamed: "Tiny Tapeout Dev Container" -> "VAELIX | PROJECT CITADEL"
+// ==============================================================================
 {
-  "name": "Tiny Tapeout Dev Container",
+  "name": "VAELIX | PROJECT CITADEL - SILICON FORGE",
+
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+
   "runArgs": [
     "--memory=10GB"
   ],
+
   "customizations": {
     "vscode": {
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash"
       },
-      "extensions": ["mshr-h.veriloghdl", "surfer-project.surfer"]
+      "extensions": [
+        "mshr-h.veriloghdl",
+        "chipsalliance.verible",
+        "surfer-project.surfer",
+        "ms-python.python",
+        "redhat.vscode-yaml"
+      ]
     }
   },
+
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "moby": true,
@@ -25,6 +66,7 @@
       "dockerDashComposeVersion": "none"
     }
   },
+
   "postCreateCommand": "echo 'source /ttsetup/venv/bin/activate' >> ~/.bashrc",
   "postStartCommand": "/ttsetup/copy_tt_support_tools.sh"
 }
