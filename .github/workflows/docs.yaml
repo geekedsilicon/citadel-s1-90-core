@@ -1,12 +1,39 @@
+# ==============================================================================
+# VAELIX | PROJECT CITADEL — DOCUMENTATION BUILD WORKFLOW
+# ==============================================================================
+# FILE:      .github/workflows/docs.yaml
+# VERSION:   1.1.0 — Citadel Standard
+# TARGET:    Tiny Tapeout 06 (IHP 130nm SG13G2) — ttihp26a Shuttle
+#
+# PURPOSE:
+#   Builds the project datasheet from docs/info.md and deploys it to
+#   GitHub Pages on every push.
+#
+# FIX LOG:
+#   v1.1.0 — Added permissions block (pages: write, id-token: write)
+#   v1.1.0 — Added concurrency guard (cancels stale doc builds on rapid push)
+#   v1.0.0 — Tag updated to ttihp26a (IHP26a shuttle target)
+# ==============================================================================
+
 name: docs
 
 on:
   push:
   workflow_dispatch:
 
+# Cancel any in-progress doc build when a newer push arrives.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   docs:
     runs-on: ubuntu-24.04
+
+    permissions:
+      pages:     write   # Required to deploy to GitHub Pages
+      id-token:  write   # Required to verify deployment origin
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
