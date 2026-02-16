@@ -1,42 +1,68 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# VAELIX | PROJECT CITADEL
+## S1-90 "ATOMIC" SILICON PROTOTYPE
+**"The Luxury of Silence. The Certainty of Logic."**
 
-- [Read the documentation for project](docs/info.md)
+---
 
-## What is Tiny Tapeout?
+## 01 | THE MISSION
+**Project Citadel** is the computational foundation of the Vaelix ecosystem. The **S1-90 Core** represents our transition from high-fidelity FPGA prototyping on **Xilinx RFSoC 4x2** and **PYNQ-Z2** platforms to custom, mission-critical ASIC hardware. 
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+This repository contains the hardened structural Verilog for the **Sentinel Lock**—a cryptographic hardware authorization gate engineered for the **IHP 130nm SG13G2** process (Tiny Tapeout 06 / IHP26a Shuttle).
 
-To learn more and get started, visit https://tinytapeout.com.
 
-## Set up your Verilog project
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+---
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+## 02 | ARCHITECTURAL STANDARDS
+At Vaelix, we do not settle for "functional." We demand **Symmetry and Resilience**. All assets within this repository adhere to the **Vaelix Missionary Standard v1.2**:
 
-## Enable GitHub actions to build the results page
+* **Logic Primitives:** Engineered using bitwise-accurate Citadel Primitives to ensure transistor-level predictability.
+* **Integrity:** `keep_hierarchy` enforcement prevents synthesis flattening, preserving our structural intellectual property.
+* **Verification:** Zero-defect net declaration via `` `default_nettype none ``.
+* **Performance:** Clocked at a stable **25MHz** to prioritize authorization certainty over hazardous raw speed.
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+---
 
-## Resources
+## 03 | THE SENTINEL PROTOCOL
+The S1-90 Core implements the **Sentinel Lock**, an 8-bit hardware-level security gate.
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+* **Verification:** Transistor-gate comparison against the Vaelix Key: `0xB6`.
+* **Telemetry:** Real-time system status via an Active-LOW 7-segment interface.
+* **Persistence:** The "Vaelix Glow" status array confirms a high-integrity authorization state.
 
-## What next?
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+
+[Image of logic gate symbols and truth tables]
+
+
+---
+
+## 04 | REPOSITORY STRUCTURE
+* [`src/`](src/): Hardened Verilog source and IHP-optimized synthesis configurations.
+* [`docs/`](docs/info.md): Detailed operational theory and hardware-level "Manual of Arms."
+* [`test/`](test/): Rigorous testbenches for intrusion deflection and logic verification.
+
+---
+
+## 05 | THE VAELIX PIPELINE
+The GDSII files in this repository are automatically hardened using the **LibreLane** ASIC flow. Every commit triggers a full suite of LVS (Layout vs. Schematic) and DRC (Design Rule Checks) to ensure that the silicon arriving from the German fab is as perfect as the logic that birthed it.
+
+### **TECHNICAL SPECIFICATIONS**
+| Parameter | Specification |
+| :--- | :--- |
+| **Process Node** | IHP 130nm SG13G2 |
+| **Die Area** | 1x1 Tile (167x108 µm) |
+| **Logic Density** | 65% (Fortified) |
+| **Target Power** | Optimized for VX-1 Telemetry Modules |
+
+---
+
+## 06 | CONTACT & CUSTODY
+**VAELIX SYSTEMS** *The Louis Vuitton of Defense and Deep Tech.*
+
+
+
+---
+© 2026 Vaelix Systems Engineering. All Rights Reserved. TIER 1 Clearance Required for Full Schematic Access.
