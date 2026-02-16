@@ -1,4 +1,33 @@
 {
+  "//": "============================================================",
+  "//": "VAELIX | PROJECT CITADEL — VS CODE WORKSPACE CONFIGURATION",
+  "//": "FILE:     .vscode/settings.json",
+  "//": "VERSION:  1.1.0 — Citadel Standard",
+  "//": "FIX LOG:",
+  "//": "  v1.1.0 — Added Verilator include path for IHP SG13G2 PDK",
+  "//": "  v1.1.0 — Added .gtkw file association (plaintext)",
+  "//": "  v1.1.0 — Added 80-column ruler (Vaelix alignment standard)",
+  "//": "============================================================",
+
+  "//": "--- LINTING ----------------------------------------------------",
+  "//": "Verilator: strict structural linting for zero-defect RTL.",
   "verilog.linting.linter": "verilator",
-  "verilog.formatting.verilogHDL.formatter": "verible-verilog-format"
+  "verilog.linting.verilator.arguments": "-I${workspaceFolder}/src",
+
+  "//": "--- FORMATTING -------------------------------------------------",
+  "//": "Verible: enforces Vaelix port alignment and indentation.",
+  "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
+
+  "//": "--- FILE ASSOCIATIONS ------------------------------------------",
+  "//": "Map .gtkw to plaintext — prevents binary/unknown file warnings.",
+  "files.associations": {
+    "*.gtkw": "plaintext"
+  },
+
+  "//": "--- EDITOR STANDARDS -------------------------------------------",
+  "//": "80-column ruler enforces Vaelix vertical alignment standard.",
+  "//": "Trim trailing whitespace and enforce LF line endings.",
+  "editor.rulers": [80],
+  "files.trimTrailingWhitespace": true,
+  "files.eol": "\n"
 }
