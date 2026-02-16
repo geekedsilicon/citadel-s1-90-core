@@ -1,48 +1,119 @@
+# ==============================================================================
+# VAELIX | PROJECT CITADEL — RTL VERIFICATION WORKFLOW
+# ==============================================================================
+# FILE:      .github/workflows/test.yaml
+# VERSION:   1.1.0 — Citadel Standard
+# TARGET:    Tiny Tapeout 06 (IHP 130nm SG13G2)
+# ENGINE:    Cocotb 2.0.1 + Icarus Verilog
+#
+# PURPOSE:
+#   Runs the S1-90 Sentinel interrogation suite on every push.
+#   Executes all 256 brute-force authorization vectors and power-cycle
+#   checks defined in test/test.py.
+#   Uploads FST waveform and results for post-run analysis.
+#
+# ARTIFACTS:
+#   test-results/
+#     tb.fst        — Full simulation waveform (open with Surfer or GTKWave)
+#     tb.gtkw       — Pre-configured Sentinel signal layout for GTKWave
+#     results.xml   — JUnit test report
+#     output/*      — Any additional test outputs
+#
+# FIX LOG:
+#   v1.1.0 — [CRITICAL] make clean -> make clean || true (fresh runner safety)
+#   v1.1.0 — [MODERATE] results.xml existence guard before grep
+#   v1.1.0 — [MODERATE] Added concurrency guard
+#   v1.1.0 — [ADVISORY] tb.gtkw added to artifact upload
+# ==============================================================================
+
 name: test
+
 on: [push, workflow_dispatch]
+
+# Cancel any in-progress test run when a newer push arrives.
+concurrency:
+  group: "test-${{ github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-24.04
+
     steps:
+
+      # ------------------------------------------------------------------------
+      # STEP 1: SOURCE ACQUISITION
+      # ------------------------------------------------------------------------
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install iverilog
+      # ------------------------------------------------------------------------
+      # STEP 2: TOOLCHAIN INSTALLATION
+      # ------------------------------------------------------------------------
+      - name: Install Icarus Verilog
         shell: bash
         run: sudo apt-get update && sudo apt-get install -y iverilog
 
-      # Set Python up and install cocotb
-      - name: Setup python
+      - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install Python packages
         shell: bash
+        # Installs pinned cocotb==2.0.1 and pytest==8.4.2
+        # DO NOT replace with bare 'pip install cocotb' — version pin is mandatory
         run: pip install -r test/requirements.txt
 
-      - name: Run tests
+      # ------------------------------------------------------------------------
+      # STEP 3: INTERROGATION EXECUTION
+      # ------------------------------------------------------------------------
+      - name: Run Sentinel Interrogation Suite
         run: |
           cd test
-          make clean
+
+          # make clean is safe on a fresh runner — || true prevents false failure
+          # when sim_build/ does not yet exist
+          make clean || true
+
+          # Execute full 256-vector brute force + power-cycle verification
           make
-          # make will return success even if the test fails, so check for failure in the results.xml
+
+          # cocotb/make returns 0 even on test assertion failures.
+          # Guard with existence check first — missing results.xml means
+          # a compile or configuration error occurred (check output above).
+          if [ ! -f results.xml ]; then
+            echo "ERROR: results.xml not found — simulation did not complete."
+            echo "Check the Icarus compile output above for module/syntax errors."
+            exit 1
+          fi
+
+          # Fail the job if any test assertion failed
           ! grep failure results.xml
 
+      # ------------------------------------------------------------------------
+      # STEP 4: REPORTING (always runs — captures both pass and fail)
+      # ------------------------------------------------------------------------
       - name: Test Summary
         uses: test-summary/action@v2.3
         with:
           paths: "test/results.xml"
         if: always()
 
-      - name: upload waveform and test results
+      # ------------------------------------------------------------------------
+      # STEP 5: ARTIFACT UPLOAD
+      # FST + GTKW together = self-contained waveform analysis package.
+      # Download artifact, open: gtkwave tb.fst tb.gtkw
+      # ------------------------------------------------------------------------
+      - name: Upload waveform and test results
         if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: |
             test/tb.fst
+            test/tb.gtkw
             test/results.xml
             test/output/*
