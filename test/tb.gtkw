@@ -1,39 +1,50 @@
 [*]
-[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Mon Nov 20 16:00:28 2023
+[*] VAELIX | PROJECT CITADEL — SENTINEL TELEMETRY DASHBOARD
+[*] GTKWave Configuration v1.1.0
+[*] TARGET: IHP 130nm SG13G2 Verification
 [*]
-[dumpfile] "/home/uri/p/tt-new-template-proto/test/tb.fst"
-[dumpfile_mtime] "Mon Nov 20 15:58:34 2023"
-[dumpfile_size] 1110
-[savefile] "/home/uri/p/tt-new-template-proto/test/tb.gtkw"
+[*] FIX LOG:
+[*]   v1.1.0 — [CRITICAL] dumpfile/savefile: absolute -> relative paths
+[*]   v1.1.0 — [MODERATE] Signal order: uo_out moved above uio block
+[*]   v1.1.0 — [ADVISORY] dumpfile_mtime set to epoch zero (auto-updated by GTKWave)
+[*]
+[dumpfile] "tb.fst"
+[dumpfile_mtime] "Thu Jan  1 00:00:00 1970"
+[dumpfile_size] 0
+[savefile] "tb.gtkw"
 [timestart] 0
-[size] 1376 600
+[size] 1400 800
 [pos] -1 -1
-*-24.534533 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-24.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb.
-[sst_width] 297
-[signals_width] 230
+[sst_width] 250
+[signals_width] 280
 [sst_expanded] 1
-[sst_vpaned_height] 158
+[sst_vpaned_height] 200
+
 @28
 tb.user_project.ena
 @29
 tb.user_project.clk
 @28
 tb.user_project.rst_n
+
 @200
--Inputs
+-SENTINEL INPUT (KEY)
 @22
 tb.user_project.ui_in[7:0]
+
 @200
--Bidirectional Pins
-@22
-tb.user_project.uio_in[7:0]
-tb.user_project.uio_oe[7:0]
-tb.user_project.uio_out[7:0]
-@200
--Output Pins
+-TELEMETRY (7-SEG DISPLAY)
 @22
 tb.user_project.uo_out[7:0]
+
+@200
+-STATUS ARRAY (VAELIX GLOW)
+@22
+tb.user_project.uio_out[7:0]
+tb.user_project.uio_oe[7:0]
+tb.user_project.uio_in[7:0]
+
 [pattern_trace] 1
 [pattern_trace] 0
