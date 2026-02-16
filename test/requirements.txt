@@ -1,2 +1,19 @@
+# ============================================================================
+# VAELIX | PROJECT CITADEL — TEST DEPENDENCIES
+# ============================================================================
+# FILE:      test/requirements.txt
+# VERSION:   1.1.0 — Citadel Standard
+# TARGET:    Tiny Tapeout 06 (IHP 130nm SG13G2)
+#
+# FIX LOG:
+#   v1.1.0 — [CRITICAL] cocotb 1.9.2 -> 2.0.1
+#             Enables COCOTB_TEST_MODULES variable in Makefile.
+#             cocotb 1.x used MODULE= which silently runs zero tests on 2.x.
+#   v1.1.0 — pytest 8.3.4 -> 8.4.2 (latest stable, confirmed 2.0.1 compatible)
+#
+# INSTALL:
+#   pip install -r requirements.txt
+#   DO NOT run bare 'pip install cocotb' — version pin is mandatory.
+# ============================================================================
 pytest==8.4.2
 cocotb==2.0.1
