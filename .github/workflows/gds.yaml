@@ -1,14 +1,55 @@
+# ==============================================================================
+# VAELIX | PROJECT CITADEL — GDS HARDENING WORKFLOW
+# ==============================================================================
+# FILE:      .github/workflows/gds.yaml
+# VERSION:   1.1.0 — Citadel Standard
+# TARGET:    Tiny Tapeout 06 (IHP 130nm SG13G2) — ttihp26a Shuttle
+#
+# PURPOSE:
+#   Full ASIC hardening pipeline for the S1-90 Sentinel Core.
+#   Produces GDSII output via LibreLane on the IHP SG13G2 PDK,
+#   then runs precheck, gate-level simulation, and deploys the
+#   layout viewer to GitHub Pages.
+#
+# PIPELINE ORDER:
+#   gds → precheck (parallel) → viewer (parallel)
+#         gl_test  (parallel)
+#
+# ⚠️  LIBRELANE VERSION WARNING:
+#   librelane-version: 3.0.0.dev44 is the MANDATORY pre-release version
+#   for the IHP26a shuttle. DO NOT upgrade without explicit TinyTapeout
+#   shuttle coordinator approval — newer versions may break IHP PDK compat.
+#
+# FIX LOG:
+#   v1.1.0 — Added concurrency guard (cancels stale hardening runs)
+#   v1.1.0 — Added inline warnings on librelane version pin
+#   v1.0.0 — librelane-version pinned to 3.0.0.dev44 (IHP26a requirement)
+#   v1.0.0 — Tag updated to ttihp26a
+# ==============================================================================
+
 name: gds
 
 on:
   push:
   workflow_dispatch:
 
+# Cancel any in-progress hardening run when a newer push arrives.
+# GDS synthesis is the most expensive job — never let stale runs hold runners.
+concurrency:
+  group: "gds"
+  cancel-in-progress: true
+
 jobs:
+
+  # ----------------------------------------------------------------------------
+  # JOB 1: GDS HARDENING
+  # Runs LibreLane on the IHP SG13G2 PDK to produce the GDSII file.
+  # All downstream jobs depend on successful completion of this job.
+  # ----------------------------------------------------------------------------
   gds:
     runs-on: ubuntu-24.04
     steps:
-      - name: checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -17,8 +58,14 @@ jobs:
         uses: TinyTapeout/tt-gds-action@ttihp26a
         with:
           pdk: ihp-sg13g2
+          # ⚠️ MANDATORY VERSION — do not upgrade without shuttle approval.
           librelane-version: 3.0.0.dev44
 
+  # ----------------------------------------------------------------------------
+  # JOB 2: PRECHECK
+  # Runs TinyTapeout DRC/LVS precheck against the hardened GDSII.
+  # Consumes artifacts from the gds job — no checkout required.
+  # ----------------------------------------------------------------------------
   precheck:
     needs: gds
     runs-on: ubuntu-24.04
@@ -26,11 +73,16 @@ jobs:
       - name: Run Tiny Tapeout Precheck
         uses: TinyTapeout/tt-gds-action/precheck@ttihp26a
 
+  # ----------------------------------------------------------------------------
+  # JOB 3: GATE-LEVEL SIMULATION
+  # Verifies the hardened netlist against the IHP SG13G2 standard cell library.
+  # Runs the same Cocotb test suite as RTL but against physical gate primitives.
+  # ----------------------------------------------------------------------------
   gl_test:
     needs: gds
     runs-on: ubuntu-24.04
     steps:
-      - name: checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -38,11 +90,17 @@ jobs:
       - name: GL test
         uses: TinyTapeout/tt-gds-action/gl_test@ttihp26a
 
+  # ----------------------------------------------------------------------------
+  # JOB 4: LAYOUT VIEWER DEPLOYMENT
+  # Deploys the interactive GDSII viewer to GitHub Pages.
+  # Requires pages and id-token permissions for authenticated deployment.
+  # ----------------------------------------------------------------------------
   viewer:
     needs: gds
     runs-on: ubuntu-24.04
     permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
+      pages:     write   # Required to deploy to GitHub Pages
+      id-token:  write   # Required to verify deployment origin
     steps:
-      - uses: TinyTapeout/tt-gds-action/viewer@ttihp26a
+      - name: Deploy layout viewer
+        uses: TinyTapeout/tt-gds-action/viewer@ttihp26a
