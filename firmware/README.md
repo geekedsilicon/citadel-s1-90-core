@@ -1,43 +1,31 @@
-# Sentinel Firmware Reference
+# Sentinel SaaS Bridge Firmware
 
-This folder contains a production-ready firmware skeleton for host MCUs that
-supervise the **S1-90 Sentinel Lock** on a Tiny Tapeout demo-board setup.
+This firmware package bridges Tiny Tapeout Sentinel hardware telemetry to Vaelix SaaS.
 
-## What this firmware provides
+## Hardware contract
 
-- Deterministic state machine (`LOCKED`, `VERIFIED`, `LOCKOUT`).
-- Configurable key (`vaelix_key`), max failed attempts, and lockout window.
-- Clean HAL separation so you can port to RP2040, STM32, ESP32, or bare-metal.
-- Output behavior aligned to the hardware protocol:
-  - `0xC7` on 7-seg for locked.
-  - `0xC1` on 7-seg for verified.
-  - `0xFF` on 7-seg during lockout.
-  - `0xFF`/`0x00` status glow for verified/locked.
+### Inputs driven by MCU
+- `ui_in[7:0]`: candidate key byte.
+- Any change to `ui_in` is treated by hardware as a new submission event.
+- Lockout reset is performed with a reset pulse (`rst_n`) through HAL.
 
-## Integration steps
+### Outputs read by MCU
+- `uio_out[7]`: `AUTHORIZED`
+- `uio_out[6]`: `LOCKOUT`
+- `uio_out[5]`: `EVENT_TOGGLE`
+- `uio_out[4]`: `LAST_RESULT`
+- `uio_out[3:0]`: failed-attempt counter
+- `uo_out[7:0]`: display byte (`0xC7` locked, `0xC1` verified, `0xFF` off)
 
-1. Implement the functions declared in `sentinel_hal.h` for your board.
-2. Instantiate a `sentinel_ctx_t` and call `sentinel_init` once at boot.
-3. Periodically call `sentinel_tick` (for lockout timeout expiry).
-4. Call `sentinel_submit_candidate` when a new key candidate is available.
+## Firmware API
 
-## Minimal usage snippet
+- `sentinel_bridge_submit(candidate)` updates `ui_in` and waits one cycle.
+- `sentinel_bridge_clear_lockout()` pulses reset and re-syncs bridge state.
+- `sentinel_bridge_snapshot()` reads telemetry+display into a stable struct.
+- `sentinel_bridge_format_json()` emits SaaS-ready JSON payload.
 
-```c
-sentinel_ctx_t ctx;
-const sentinel_config_t cfg = {
-    .vaelix_key = 0xB6,
-    .max_attempts = 5,
-    .lockout_ms = 30000,
-};
+## Example payload
 
-sentinel_init(&ctx, &cfg);
-
-while (1) {
-    sentinel_tick(&ctx);
-    uint8_t candidate = read_candidate_switches();
-    if (new_candidate_ready()) {
-        (void)sentinel_submit_candidate(&ctx, candidate);
-    }
-}
+```json
+{"ts":1250031,"authorized":true,"lockout":false,"event":true,"lastResult":true,"failedAttempts":0,"display":"0xC1"}
 ```

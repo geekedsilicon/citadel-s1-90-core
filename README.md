@@ -30,7 +30,7 @@ The S1-90 Core implements the **Sentinel Lock**, an 8-bit hardware-level securit
 
 * **Verification:** Transistor-gate comparison against the Vaelix Key: `0xB6`.
 * **Telemetry:** Real-time system status via an Active-LOW 7-segment interface.
-* **Persistence:** The "Vaelix Glow" status array confirms a high-integrity authorization state.
+* **Persistence:** Structured telemetry on `uio_out` enables deterministic SaaS bridge ingestion.
 
 
 
@@ -60,13 +60,28 @@ The GDSII files in this repository are automatically hardened using the **LibreL
 ---
 
 
-## 06 | FIRMWARE READINESS
-A reference firmware package is now included in [`firmware/`](firmware/) for MCU-side
-supervision and lockout orchestration. It provides a portable C state machine with a
-small HAL boundary, enabling direct deployment on RP2040/STM32/ESP32 class hosts while
-preserving the Sentinel telemetry contract.
+## 06 | SAAS BRIDGE PROTOCOL
+The hardware now exposes an explicit command/telemetry contract for an external MCU that
+relays state to the Vaelix SaaS platform:
 
-## 07 | CONTACT & CUSTODY
+* `ui_in[7:0]`: candidate key byte (any value change is a submission event)
+* `uio_out[7]`: authorized flag
+* `uio_out[6]`: lockout flag
+* `uio_out[5]`: event toggle bit
+* `uio_out[4]`: last command result
+* `uio_out[3:0]`: failed-attempt counter
+* `rst_n` pulse: clears lockout / resets bridge session
+
+Reference bridge firmware and JSON payload formatter live in [`firmware/`](firmware/).
+
+---
+
+## 07 | FIRMWARE READINESS
+A reference firmware package is now included in [`firmware/`](firmware/) for MCU-side
+bridge integration. It provides HAL hooks to drive candidate bytes/reset pulses, read telemetry bits,
+and format deterministic JSON payloads suitable for direct SaaS ingest pipelines.
+
+## 08 | CONTACT & CUSTODY
 **VAELIX SYSTEMS** *The Louis Vuitton of Defense and Deep Tech.*
 
 

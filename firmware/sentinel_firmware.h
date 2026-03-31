@@ -2,6 +2,7 @@
 #define SENTINEL_FIRMWARE_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "sentinel_hal.h"
@@ -10,29 +11,26 @@
 extern "C" {
 #endif
 
-typedef enum {
-    SENTINEL_STATE_BOOT = 0,
-    SENTINEL_STATE_LOCKED,
-    SENTINEL_STATE_VERIFIED,
-    SENTINEL_STATE_LOCKOUT,
-} sentinel_state_t;
-
 typedef struct {
-    uint8_t  vaelix_key;
-    uint8_t  max_attempts;
-    uint32_t lockout_ms;
-} sentinel_config_t;
+    uint32_t timestamp_ms;
+    bool authorized;
+    bool lockout;
+    bool event_toggle;
+    bool last_result;
+    uint8_t failed_attempts;
+    uint8_t display;
+} sentinel_snapshot_t;
 
-typedef struct {
-    sentinel_config_t cfg;
-    sentinel_state_t  state;
-    uint8_t           failed_attempts;
-    uint32_t          lockout_deadline_ms;
-} sentinel_ctx_t;
+void sentinel_bridge_init(void);
+void sentinel_bridge_submit(uint8_t candidate);
+void sentinel_bridge_clear_lockout(void);
+sentinel_snapshot_t sentinel_bridge_snapshot(void);
 
-void sentinel_init(sentinel_ctx_t *ctx, const sentinel_config_t *cfg);
-void sentinel_tick(sentinel_ctx_t *ctx);
-bool sentinel_submit_candidate(sentinel_ctx_t *ctx, uint8_t candidate);
+bool sentinel_bridge_format_json(
+    const sentinel_snapshot_t *snapshot,
+    char *out,
+    size_t out_len
+);
 
 #ifdef __cplusplus
 }

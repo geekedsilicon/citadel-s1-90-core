@@ -50,15 +50,15 @@ pinout:
   uo[6]: "SEG_G"
   uo[7]: "SEG_DP"
 
-  # UIO[7:0] - Vaelix "Glow" Status Array
-  uio[0]: "STATUS_0"
-  uio[1]: "STATUS_1"
-  uio[2]: "STATUS_2"
-  uio[3]: "STATUS_3"
-  uio[4]: "STATUS_4"
-  uio[5]: "STATUS_5"
-  uio[6]: "STATUS_6"
-  uio[7]: "STATUS_7"
+  # UIO[7:0] - SaaS bridge telemetry
+  uio[0]: "FAILED_ATTEMPTS_0"
+  uio[1]: "FAILED_ATTEMPTS_1"
+  uio[2]: "FAILED_ATTEMPTS_2"
+  uio[3]: "FAILED_ATTEMPTS_3"
+  uio[4]: "LAST_RESULT"
+  uio[5]: "EVENT_TOGGLE"
+  uio[6]: "LOCKOUT"
+  uio[7]: "AUTHORIZED"
 
 # Operational Integrity Check
 yaml_version: 6

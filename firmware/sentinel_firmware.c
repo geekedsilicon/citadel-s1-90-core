@@ -1,77 +1,65 @@
 #include "sentinel_firmware.h"
 
-#define SEG_LOCKED   0xC7u
-#define SEG_VERIFIED 0xC1u
-#define SEG_OFF      0xFFu
+#include <stdio.h>
 
-#define GLOW_ON      0xFFu
-#define GLOW_OFF     0x00u
+static uint8_t g_last_candidate;
 
-static void sentinel_apply_outputs(const sentinel_ctx_t *ctx) {
-    switch (ctx->state) {
-        case SENTINEL_STATE_VERIFIED:
-            sentinel_hal_write_7seg(SEG_VERIFIED);
-            sentinel_hal_write_status(GLOW_ON);
-            break;
-        case SENTINEL_STATE_LOCKOUT:
-            sentinel_hal_write_7seg(SEG_OFF);
-            sentinel_hal_write_status(GLOW_OFF);
-            break;
-        case SENTINEL_STATE_BOOT:
-        case SENTINEL_STATE_LOCKED:
-        default:
-            sentinel_hal_write_7seg(SEG_LOCKED);
-            sentinel_hal_write_status(GLOW_OFF);
-            break;
+void sentinel_bridge_init(void) {
+    sentinel_hal_init();
+    g_last_candidate = 0x00u;
+}
+
+void sentinel_bridge_submit(uint8_t candidate) {
+    if (candidate == g_last_candidate) {
+        sentinel_hal_set_candidate((uint8_t)~candidate);
+        sentinel_hal_wait_cycles(1);
     }
+
+    sentinel_hal_set_candidate(candidate);
+    sentinel_hal_wait_cycles(1);
+    g_last_candidate = candidate;
 }
 
-void sentinel_init(sentinel_ctx_t *ctx, const sentinel_config_t *cfg) {
-    ctx->cfg = *cfg;
-    ctx->state = SENTINEL_STATE_BOOT;
-    ctx->failed_attempts = 0u;
-    ctx->lockout_deadline_ms = 0u;
-
-    sentinel_hal_init_pins();
-    ctx->state = SENTINEL_STATE_LOCKED;
-    sentinel_apply_outputs(ctx);
+void sentinel_bridge_clear_lockout(void) {
+    sentinel_hal_pulse_reset();
+    g_last_candidate = 0x00u;
 }
 
-void sentinel_tick(sentinel_ctx_t *ctx) {
-    if (ctx->state == SENTINEL_STATE_LOCKOUT) {
-        const uint32_t now = sentinel_hal_now_ms();
-        if (now >= ctx->lockout_deadline_ms) {
-            ctx->failed_attempts = 0u;
-            ctx->state = SENTINEL_STATE_LOCKED;
-            sentinel_apply_outputs(ctx);
-        }
-    }
+sentinel_snapshot_t sentinel_bridge_snapshot(void) {
+    const uint8_t telemetry = sentinel_hal_read_telemetry();
+
+    sentinel_snapshot_t snapshot;
+    snapshot.timestamp_ms  = sentinel_hal_now_ms();
+    snapshot.authorized    = ((telemetry >> 7) & 0x1u) != 0u;
+    snapshot.lockout       = ((telemetry >> 6) & 0x1u) != 0u;
+    snapshot.event_toggle  = ((telemetry >> 5) & 0x1u) != 0u;
+    snapshot.last_result   = ((telemetry >> 4) & 0x1u) != 0u;
+    snapshot.failed_attempts = telemetry & 0x0Fu;
+    snapshot.display       = sentinel_hal_read_display();
+    return snapshot;
 }
 
-bool sentinel_submit_candidate(sentinel_ctx_t *ctx, uint8_t candidate) {
-    if (ctx->state == SENTINEL_STATE_LOCKOUT) {
-        sentinel_apply_outputs(ctx);
+bool sentinel_bridge_format_json(
+    const sentinel_snapshot_t *snapshot,
+    char *out,
+    size_t out_len
+) {
+    if (snapshot == NULL || out == NULL || out_len == 0u) {
         return false;
     }
 
-    if (candidate == ctx->cfg.vaelix_key) {
-        ctx->state = SENTINEL_STATE_VERIFIED;
-        ctx->failed_attempts = 0u;
-        sentinel_apply_outputs(ctx);
-        return true;
-    }
+    const int written = snprintf(
+        out,
+        out_len,
+        "{\"ts\":%lu,\"authorized\":%s,\"lockout\":%s,\"event\":%s,\"lastResult\":%s,\"failedAttempts\":%u,\"display\":\"0x%02X\"}",
+        (unsigned long)snapshot->timestamp_ms,
+        snapshot->authorized ? "true" : "false",
+        snapshot->lockout ? "true" : "false",
+        snapshot->event_toggle ? "true" : "false",
+        snapshot->last_result ? "true" : "false",
+        snapshot->failed_attempts,
+        snapshot->display
+    );
 
-    ctx->state = SENTINEL_STATE_LOCKED;
-
-    if (ctx->failed_attempts < UINT8_MAX) {
-        ctx->failed_attempts++;
-    }
-
-    if (ctx->failed_attempts >= ctx->cfg.max_attempts) {
-        ctx->state = SENTINEL_STATE_LOCKOUT;
-        ctx->lockout_deadline_ms = sentinel_hal_now_ms() + ctx->cfg.lockout_ms;
-    }
-
-    sentinel_apply_outputs(ctx);
-    return false;
+    return written > 0 && (size_t)written < out_len;
 }
