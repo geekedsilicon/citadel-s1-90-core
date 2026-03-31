@@ -49,3 +49,13 @@ Example payload:
 3. Try the correct key during lockout; observe rejection.
 4. Pulse `rst_n` low then high; observe counters reset.
 5. Change `ui_in` to `0xB6`; observe `AUTHORIZED=1` and `uo_out=0xC1`.
+
+
+---
+
+## Test Matrix
+
+- RTL simulation: lockout/recovery sequence
+- RTL simulation: lockout auto-timeout expiration
+- RTL simulation: exhaustive 256-key acceptance/rejection sweep
+- Firmware e2e harness: bridge snapshot + JSON payload validation

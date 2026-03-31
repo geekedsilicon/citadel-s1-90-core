@@ -81,7 +81,17 @@ A reference firmware package is now included in [`firmware/`](firmware/) for MCU
 bridge integration. It provides HAL hooks to drive candidate bytes/reset pulses, read telemetry bits,
 and format deterministic JSON payloads suitable for direct SaaS ingest pipelines.
 
-## 08 | CONTACT & CUSTODY
+## 08 | VALIDATION SUITE
+Validation now includes:
+
+* Cocotb lockout/recovery simulation
+* Cocotb lockout auto-timeout simulation
+* Cocotb exhaustive 256-key sweep
+* Firmware bridge e2e harness with JSON payload assertions
+
+---
+
+## 09 | CONTACT & CUSTODY
 **VAELIX SYSTEMS** *The Louis Vuitton of Defense and Deep Tech.*
 
 
