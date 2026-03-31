@@ -19,6 +19,8 @@
 SIM           ?= icarus
 FST           ?= -fst
 TOPLEVEL_LANG ?= verilog
+IVERILOG      ?= iverilog
+VVP           ?= vvp
 
 # --- SOURCE DEFINITIONS -----------------------------------------------------
 # SRC_DIR:         Location of the Citadel structural logic.
