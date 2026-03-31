@@ -59,7 +59,14 @@ The GDSII files in this repository are automatically hardened using the **LibreL
 
 ---
 
-## 06 | CONTACT & CUSTODY
+
+## 06 | FIRMWARE READINESS
+A reference firmware package is now included in [`firmware/`](firmware/) for MCU-side
+supervision and lockout orchestration. It provides a portable C state machine with a
+small HAL boundary, enabling direct deployment on RP2040/STM32/ESP32 class hosts while
+preserving the Sentinel telemetry contract.
+
+## 07 | CONTACT & CUSTODY
 **VAELIX SYSTEMS** *The Louis Vuitton of Defense and Deep Tech.*
 
 
